@@ -82,3 +82,10 @@ Debouncing is applied with 200ms
 
 - if differnce between 2 key stroke is <200ms = Decline the API Call
 - if >200ms make an api Call
+
+Cache :
+[] time complexity to search O(n)
+{} time complexity to search O(1)
+or new Map()
+
+// LRU Cache results

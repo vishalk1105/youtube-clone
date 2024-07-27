@@ -1,31 +1,41 @@
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toggleMenu } from "../utils/appSlice";
 import { YOUTUBE_SEARCH_API } from "../constants";
+import { cacheResults } from "../utils/searchSlice";
 
 const Head = () => {
   const dispatch = useDispatch();
   const [searchQry, setSearchQry] = useState("");
   const [seggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const searchCache = useSelector((store) => store.search);
   useEffect(() => {
     // API Call
     // Make An api call after every key press
     // But if difference between 2 API calls is <200ms
     // Decline the api call
     try {
-      const timer = setTimeout(() => getSuggestions(), 200);
+      const timer = setTimeout(() => {
+        if (searchCache[searchQry]) {
+          setSuggestions(searchCache[searchQry]);
+        } else {
+          getSuggestions();
+        }
+      }, 200);
       return () => {
         clearTimeout(timer);
       };
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   }, [searchQry]);
 
   const getSuggestions = async () => {
     const data = await fetch(YOUTUBE_SEARCH_API + searchQry);
     const json = await data.json();
+    dispatch(cacheResults({ [searchQry]: json[1] }));
     setSuggestions(json[1]);
   };
 
